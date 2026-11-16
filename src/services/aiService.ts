@@ -1,29 +1,103 @@
+//src/services/chatService.ts
+
 import { supabase } from '../lib/supabase';
 
-/**
- * Sends a message to the chatbot and returns the assistant's reply.
- *
- * Currently stubbed — returns a placeholder after 800ms. When the Edge
- * Function is ready, replace the stub with:
- *
- *   const { data, error } = await supabase.functions.invoke('chat', {
- *     body: { conversationId, message },
- *   });
- *   if (error) throw error;
- *   return data.reply;
- */
+interface ChatReplyResponse {
+  reply?: string;
+  error?: string;
+}
+
 export async function getChatReply(
   conversationId: string,
-  message: string
+  message: string,
 ): Promise<string> {
-  // Simulate network latency so the UI shows the "thinking" indicator
-  await new Promise((r) => setTimeout(r, 800));
+  const cleanMessage = message.trim();
 
-  if (message.toLowerCase().includes('dry')) {
-    return "For dry skin, look for products with ceramides, hyaluronic acid, and glycerin. Avoid alcohol-based toners. Want me to look at your latest scan?";
+  if (!conversationId) {
+    throw new Error('Conversation ID is missing.');
   }
-  if (message.toLowerCase().includes('oily')) {
-    return "For oily skin, a gentle salicylic acid cleanser in the morning helps regulate sebum. Niacinamide is your friend. Want me to check your last scan for consistency?";
+
+  if (!cleanMessage) {
+    throw new Error('Please enter a message.');
   }
-  return "I can help with skin routines, ingredient questions, and interpreting your scan results. What would you like to know?";
+
+  if (cleanMessage.length > 500) {
+    throw new Error('Your message cannot exceed 500 characters.');
+  }
+
+  try {
+    const { data, error } =
+      await supabase.functions.invoke<ChatReplyResponse>(
+        'skin-chat',
+        {
+          body: {
+            conversationId,
+            message: cleanMessage,
+          },
+        },
+      );
+
+    if (error) {
+      const functionError = error as Error & {
+        context?: Response;
+      };
+
+      let status = 'Unknown';
+      let serverMessage = '';
+
+      if (functionError.context) {
+        status = String(functionError.context.status);
+
+        try {
+          const response = functionError.context.clone();
+          const responseBody = await response.json();
+
+          serverMessage =
+            responseBody?.error ||
+            responseBody?.message ||
+            JSON.stringify(responseBody);
+        } catch {
+          try {
+            serverMessage = await functionError.context
+              .clone()
+              .text();
+          } catch {
+            serverMessage = 'Unable to read server response.';
+          }
+        }
+      }
+
+      console.error('SkinAI Edge Function error:', {
+        status,
+        message: serverMessage,
+        originalError: functionError.message,
+      });
+
+      throw new Error(
+        `SkinAI server error (${status}): ${
+          serverMessage || functionError.message
+        }`,
+      );
+    }
+
+    if (data?.error) {
+      throw new Error(data.error);
+    }
+
+    if (typeof data?.reply !== 'string' || !data.reply.trim()) {
+      throw new Error('SkinAI returned an empty response.');
+    }
+
+    return data.reply.trim();
+  } catch (error: unknown) {
+    console.error('Chat service failed:', error);
+
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new Error(
+      'Something went wrong while contacting SkinAI. Please try again.',
+    );
+  }
 }

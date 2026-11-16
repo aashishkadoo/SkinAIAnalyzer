@@ -1,101 +1,367 @@
-import { Pressable, StyleSheet, Animated, View } from 'react-native';
-import { useEffect, useRef } from 'react';
-import Svg, { Path } from 'react-native-svg';
-import { theme } from '../../constants/theme';
+//src/components/chat/ChatFab.tsx
+import React, { useEffect, useRef } from 'react';
 
-function ChatIcon({ size = 24, color = '#fff' }: { size?: number; color?: string }) {
+import {
+  Animated,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
+
+import Svg, {
+  Circle,
+  Defs,
+  LinearGradient,
+  Path,
+  Stop,
+} from 'react-native-svg';
+
+// =====================================================
+// AI CHAT ICON
+// =====================================================
+
+function ChatIcon({ size = 29 }: { size?: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+    >
+      <Defs>
+        <LinearGradient
+          id="chatStroke"
+          x1="4"
+          y1="4"
+          x2="28"
+          y2="28"
+          gradientUnits="userSpaceOnUse"
+        >
+          <Stop offset="0" stopColor="#FFFFFF" />
+          <Stop offset="1" stopColor="#FFF0F7" />
+        </LinearGradient>
+      </Defs>
+
+      {/* Chat bubble */}
       <Path
-        d="M21 11.5C21 16.2 16.97 20 12 20C10.6 20 9.28 19.73 8.1 19.25L3 20L4.2 15.5C3.44 14.3 3 12.95 3 11.5C3 6.8 7.03 3 12 3C16.97 3 21 6.8 21 11.5Z"
-        stroke={color}
-        strokeWidth={2}
+        d="M26 14.8C26 20.65 21.3 25.4 15.5 25.4C13.65 25.4 11.9 24.9 10.4 24.05L5 26L6.55 20.85C5.6 19.15 5 17.05 5 14.8C5 8.95 9.7 4.2 15.5 4.2C21.3 4.2 26 8.95 26 14.8Z"
+        stroke="url(#chatStroke)"
+        strokeWidth={1.8}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill="none"
       />
+
+      {/* AI sparkle */}
       <Path
-        d="M8 11H8.01M12 11H12.01M16 11H16.01"
-        stroke={color}
-        strokeWidth={2.4}
-        strokeLinecap="round"
+        d="M20.4 8.2L21.5 11.2L24.5 12.3L21.5 13.4L20.4 16.4L19.3 13.4L16.3 12.3L19.3 11.2L20.4 8.2Z"
+        fill="#FFFFFF"
+      />
+
+      {/* Chat detail */}
+      <Circle cx="10.8" cy="17" r="1.15" fill="#FFFFFF" />
+      <Circle cx="14.7" cy="17" r="1.15" fill="#FFFFFF" />
+      <Circle cx="18.6" cy="17" r="1.15" fill="#FFFFFF" />
+
+      {/* Small sparkle */}
+      <Path
+        d="M25.1 20.1L25.65 21.65L27.2 22.2L25.65 22.75L25.1 24.3L24.55 22.75L23 22.2L24.55 21.65L25.1 20.1Z"
+        fill="#FFFFFF"
+        opacity={0.9}
       />
     </Svg>
   );
 }
 
-export default function ChatFab({ onPress }: { onPress: () => void }) {
+// =====================================================
+// CHAT FAB
+// =====================================================
+
+export default function ChatFab({
+  onPress,
+}: {
+  onPress: () => void;
+}) {
   const scale = useRef(new Animated.Value(1)).current;
   const pulse = useRef(new Animated.Value(0)).current;
+  const shimmer = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const pulseAnimation = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1, duration: 1600, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0, duration: 1600, useNativeDriver: true }),
-      ])
-    ).start();
-  }, []);
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 1900,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 1900,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
 
-  const onPressIn = () =>
-    Animated.spring(scale, { toValue: 0.9, useNativeDriver: true, speed: 40 }).start();
-  const onPressOut = () =>
-    Animated.spring(scale, { toValue: 1, useNativeDriver: true, friction: 4 }).start();
+    const shimmerAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, {
+          toValue: 1,
+          duration: 2300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmer, {
+          toValue: 0,
+          duration: 2300,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
 
-  const pulseScale = pulse.interpolate({
+    pulseAnimation.start();
+    shimmerAnimation.start();
+
+    return () => {
+      pulseAnimation.stop();
+      shimmerAnimation.stop();
+    };
+  }, [pulse, shimmer]);
+
+  // Soft expanding aura
+  const auraScale = pulse.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, 1.5],
+    outputRange: [1, 1.65],
   });
-  const pulseOpacity = pulse.interpolate({
+
+  const auraOpacity = pulse.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.4, 0.15, 0],
+  });
+
+  // Breathing edge glow
+  const edgeOpacity = pulse.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.35, 0],
+    outputRange: [0.45, 1],
   });
+
+  const edgeScale = pulse.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.07],
+  });
+
+  // Subtle highlight
+  const highlightOpacity = shimmer.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.35, 0.85, 0.35],
+  });
+
+  const onPressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.91,
+      useNativeDriver: true,
+      speed: 35,
+      bounciness: 5,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 25,
+      bounciness: 7,
+    }).start();
+  };
 
   return (
-    <View style={styles.wrap} pointerEvents="box-none">
+    <View
+      style={styles.container}
+      pointerEvents="box-none"
+    >
+      {/* Expanding ambient aura */}
       <Animated.View
-        style={[
-          styles.pulseRing,
-          { opacity: pulseOpacity, transform: [{ scale: pulseScale }] },
-        ]}
         pointerEvents="none"
+        style={[
+          styles.aura,
+          {
+            opacity: auraOpacity,
+            transform: [{ scale: auraScale }],
+          },
+        ]}
       />
-      <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
-        <Animated.View style={[styles.fab, { transform: [{ scale }] }]}>
-          <ChatIcon size={26} color="#fff" />
+
+      {/* Soft illuminated edge */}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.edgeGlow,
+          {
+            opacity: edgeOpacity,
+            transform: [{ scale: edgeScale }],
+          },
+        ]}
+      />
+
+      {/* Outer glass ring */}
+      <View
+        pointerEvents="none"
+        style={styles.glassRing}
+      />
+
+      {/* Main button */}
+      <Pressable
+        onPress={onPress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        accessibilityRole="button"
+        accessibilityLabel="Open SkinAI chat assistant"
+        hitSlop={8}
+      >
+        <Animated.View
+          style={[
+            styles.button,
+            {
+              transform: [{ scale }],
+            },
+          ]}
+        >
+          {/* Top glass highlight */}
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              styles.highlight,
+              { opacity: highlightOpacity },
+            ]}
+          />
+
+          {/* AI icon */}
+          <View style={styles.iconContainer}>
+            <ChatIcon size={30} />
+          </View>
+
+          {/* Small online indicator */}
+          <View style={styles.onlineRing}>
+            <View style={styles.onlineDot} />
+          </View>
         </Animated.View>
       </Pressable>
     </View>
   );
 }
 
+// =====================================================
+// STYLES
+// =====================================================
+
+const SIZE = 60;
+
 const styles = StyleSheet.create({
-  wrap: {
+  container: {
     position: 'absolute',
-    right: 20,
-    bottom: 110,         // above the navbar (navbar is ~80px tall + safe area)
+    right: 24,
+    bottom: 140,
+    width: SIZE,
+    height: SIZE,
     zIndex: 100,
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.colors.primary,
-    top: 0,
-    left: 0,
-  },
-  fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.colors.primary,
-    justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
+    justifyContent: 'center',
+  },
+
+  // Expanding pink aura
+
+  aura: {
+    position: 'absolute',
+    width: SIZE,
+    height: SIZE,
+    borderRadius: SIZE / 2,
+    backgroundColor: '#F0A8C7',
+    shadowColor: '#E88EB7',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.65,
+    shadowRadius: 20,
+    elevation: 9,
+  },
+
+  // Pulsating border glow
+
+  edgeGlow: {
+    position: 'absolute',
+    width: SIZE + 7,
+    height: SIZE + 7,
+    borderRadius: (SIZE + 7) / 2,
+    borderWidth: 1.8,
+    borderColor: '#F0A6C7',
+    shadowColor: '#E98BB8',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
     shadowRadius: 12,
     elevation: 8,
+  },
+
+  // Translucent outer ring
+
+  glassRing: {
+    position: 'absolute',
+    width: SIZE + 3,
+    height: SIZE + 3,
+    borderRadius: (SIZE + 3) / 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.9)',
+  },
+
+  // Main glass-inspired button
+
+  button: {
+    width: SIZE,
+    height: SIZE,
+    borderRadius: SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#E99ABC',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.85)',
+
+    shadowColor: '#D77EA5',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.32,
+    shadowRadius: 13,
+    elevation: 10,
+  },
+
+  // Reflective surface
+
+  highlight: {
+    position: 'absolute',
+    top: 3,
+    left: 7,
+    right: 7,
+    height: 22,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+  },
+
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Online status
+
+  onlineRing: {
+    position: 'absolute',
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    right: 1,
+    bottom: 1,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  onlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#53C59A',
   },
 });

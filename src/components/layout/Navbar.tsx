@@ -1,3 +1,4 @@
+// src/components/layout/Navbar.tsx
 import React, { useEffect, useRef } from 'react';
 import {
   View,
@@ -51,7 +52,7 @@ function TabButton({
 
   const onPressIn = () => {
     Animated.spring(scale, {
-      toValue: 0.88,
+      toValue: 0.9,
       useNativeDriver: true,
       speed: 40,
     }).start();
@@ -79,9 +80,12 @@ function TabButton({
       android_ripple={{ color: 'transparent' }}
     >
       <Animated.View
-        style={[styles.iconWrap, { transform: [{ scale }, { translateY }] }]}
+        style={[
+          styles.iconWrap,
+          { transform: [{ scale }, { translateY }] },
+        ]}
       >
-        <Icon size={24} color={color} focused={focused} />
+        <Icon size={30} color={color} focused={focused} />
       </Animated.View>
       <Text
         style={[styles.label, { color }, focused && styles.labelFocused]}
@@ -152,8 +156,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     backgroundColor: 'transparent',
-    // Subtle shadow on the wrapper (not the pill) so it can't render as a
-    // rectangular artifact behind the rounded corners on Android.
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
@@ -162,14 +164,12 @@ const styles = StyleSheet.create({
   pill: {
     borderRadius: 28,
     overflow: 'hidden',
-    // NO backgroundColor here — the inner BlurView/View provides it
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(0,0,0,0.06)',
-    // NO elevation — that's the rectangle-behind bug on Android
   },
   inner: {
     flexDirection: 'row',
-    paddingVertical: 10,
+    paddingVertical: 14,
     paddingHorizontal: 6,
   },
   tab: {
@@ -180,11 +180,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   iconWrap: {
-    marginBottom: 3,
+    marginBottom: 4,
     backgroundColor: 'transparent',
   },
   label: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '500',
     letterSpacing: 0.1,
     includeFontPadding: false,

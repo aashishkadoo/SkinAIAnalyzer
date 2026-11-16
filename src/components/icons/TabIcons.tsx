@@ -1,98 +1,165 @@
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, {
+  Path, Circle, Rect, Defs, LinearGradient, Stop, G,
+} from 'react-native-svg';
 
 type IconProps = {
   size?: number;
-  color?: string;
   focused?: boolean;
 };
 
-export function HomeIcon({ size = 24, color = '#000', focused }: IconProps) {
+// Shared gradient stops — pink → magenta → violet (techy)
+function Gradient({ id }: { id: string }) {
+  return (
+    <Defs>
+      <LinearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+        <Stop offset="0" stopColor="#FF6FB1" stopOpacity="1" />
+        <Stop offset="0.5" stopColor="#E84A8A" stopOpacity="1" />
+        <Stop offset="1" stopColor="#9B6BF2" stopOpacity="1" />
+      </LinearGradient>
+    </Defs>
+  );
+}
+
+export function HomeIcon({ size = 24, focused }: IconProps) {
+  const id = 'homeGrad';
+  const stroke = focused ? `url(#${id})` : '#A896A0';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Gradient id={id} />
+      {/* soft fill for depth */}
       <Path
-        d="M3 10.5L12 3L21 10.5V20C21 20.6 20.6 21 20 21H15V15H9V21H4C3.4 21 3 20.6 3 20V10.5Z"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
+        d="M4 10.5L12 4L20 10.5V19C20 19.55 19.55 20 19 20H15V15C15 14.45 14.55 14 14 14H10C9.45 14 9 14.45 9 15V20H5C4.45 20 4 19.55 4 19V10.5Z"
+        fill={`url(#${id})`}
+        fillOpacity={focused ? 0.25 : 0.08}
+      />
+      {/* main stroke */}
+      <Path
+        d="M4 10.5L12 4L20 10.5V19C20 19.55 19.55 20 19 20H15V15C15 14.45 14.55 14 14 14H10C9.45 14 9 14.45 9 15V20H5C4.45 20 4 19.55 4 19V10.5Z"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={focused ? color : 'none'}
-        fillOpacity={focused ? 0.1 : 0}
       />
+      {/* accent dot */}
+      {focused && <Circle cx="12" cy="9" r="1.2" fill={`url(#${id})`} />}
     </Svg>
   );
 }
 
-export function ShopIcon({ size = 24, color = '#000', focused }: IconProps) {
+export function ShopIcon({ size = 24, focused }: IconProps) {
+  const id = 'shopGrad';
+  const stroke = focused ? `url(#${id})` : '#A896A0';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Gradient id={id} />
       <Path
-        d="M6 2L3 6V20C3 20.6 3.4 21 4 21H20C20.6 21 21 20.6 21 20V6L18 2H6Z"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
+        d="M5.5 3H18.5L20 7V19C20 19.55 19.55 20 19 20H5C4.45 20 4 19.55 4 19V7L5.5 3Z"
+        fill={`url(#${id})`}
+        fillOpacity={focused ? 0.25 : 0.08}
+      />
+      <Path
+        d="M5.5 3H18.5L20 7V19C20 19.55 19.55 20 19 20H5C4.45 20 4 19.55 4 19V7L5.5 3Z"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={focused ? color : 'none'}
-        fillOpacity={focused ? 0.1 : 0}
       />
       <Path
-        d="M3 6H21"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
+        d="M4 7H20"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
         strokeLinecap="round"
       />
       <Path
-        d="M16 10C16 12.2 14.2 14 12 14C9.8 14 8 12.2 8 10"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
+        d="M9 11C9 12.66 10.34 14 12 14C13.66 14 15 12.66 15 11"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
         strokeLinecap="round"
       />
+      {focused && <Circle cx="12" cy="9.5" r="0.9" fill={`url(#${id})`} />}
     </Svg>
   );
 }
 
-export function CameraIcon({ size = 24, color = '#000', focused }: IconProps) {
+export function CameraIcon({ size = 24, focused }: IconProps) {
+  const id = 'camGrad';
+  const stroke = focused ? `url(#${id})` : '#A896A0';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Gradient id={id} />
       <Path
-        d="M3 8C3 7.4 3.4 7 4 7H7L8.5 5H15.5L17 7H20C20.6 7 21 7.4 21 8V19C21 19.6 20.6 20 20 20H4C3.4 20 3 19.6 3 19V8Z"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
+        d="M3 9C3 8.45 3.45 8 4 8H7L8.5 6H15.5L17 8H20C20.55 8 21 8.45 21 9V19C21 19.55 20.55 20 20 20H4C3.45 20 3 19.55 3 19V9Z"
+        fill={`url(#${id})`}
+        fillOpacity={focused ? 0.25 : 0.08}
+      />
+      <Path
+        d="M3 9C3 8.45 3.45 8 4 8H7L8.5 6H15.5L17 8H20C20.55 8 21 8.45 21 9V19C21 19.55 20.55 20 20 20H4C3.45 20 3 19.55 3 19V9Z"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={focused ? color : 'none'}
-        fillOpacity={focused ? 0.1 : 0}
       />
       <Circle
         cx="12"
         cy="13.5"
-        r="3.5"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
+        r="3.2"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
         fill="none"
       />
+      <Circle
+        cx="12"
+        cy="13.5"
+        r="1.3"
+        fill={`url(#${id})`}
+        fillOpacity={focused ? 0.9 : 0.4}
+      />
+      {focused && <Circle cx="18.5" cy="10" r="0.9" fill={`url(#${id})`} />}
     </Svg>
   );
 }
 
-export function SettingsIcon({ size = 24, color = '#000', focused }: IconProps) {
+export function SettingsIcon({ size = 24, focused }: IconProps) {
+  const id = 'setGrad';
+  const stroke = focused ? `url(#${id})` : '#A896A0';
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Gradient id={id} />
       <Circle
         cx="12"
         cy="12"
-        r="3"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
-        fill={focused ? color : 'none'}
-        fillOpacity={focused ? 0.1 : 0}
+        r="9"
+        fill={`url(#${id})`}
+        fillOpacity={focused ? 0.25 : 0.08}
       />
-      <Path
-        d="M19.4 15C19.1 15.7 19.2 16.5 19.7 17.1L19.8 17.2C20.2 17.6 20.2 18.3 19.8 18.7L18.7 19.8C18.3 20.2 17.6 20.2 17.2 19.8L17.1 19.7C16.5 19.2 15.7 19.1 15 19.4C14.3 19.7 13.8 20.4 13.8 21.2V21.4C13.8 21.9 13.4 22.4 12.8 22.4H11.2C10.6 22.4 10.2 21.9 10.2 21.4V21.2C10.2 20.4 9.7 19.7 9 19.4C8.3 19.1 7.5 19.2 6.9 19.7L6.8 19.8C6.4 20.2 5.7 20.2 5.3 19.8L4.2 18.7C3.8 18.3 3.8 17.6 4.2 17.2L4.3 17.1C4.8 16.5 4.9 15.7 4.6 15C4.3 14.3 3.6 13.8 2.8 13.8H2.6C2.1 13.8 1.6 13.4 1.6 12.8V11.2C1.6 10.6 2.1 10.2 2.6 10.2H2.8C3.6 10.2 4.3 9.7 4.6 9C4.9 8.3 4.8 7.5 4.3 6.9L4.2 6.8C3.8 6.4 3.8 5.7 4.2 5.3L5.3 4.2C5.7 3.8 6.4 3.8 6.8 4.2L6.9 4.3C7.5 4.8 8.3 4.9 9 4.6C9.7 4.3 10.2 3.6 10.2 2.8V2.6C10.2 2.1 10.6 1.6 11.2 1.6H12.8C13.4 1.6 13.8 2.1 13.8 2.6V2.8C13.8 3.6 14.3 4.3 15 4.6C15.7 4.9 16.5 4.8 17.1 4.3L17.2 4.2C17.6 3.8 18.3 3.8 18.7 4.2L19.8 5.3C20.2 5.7 20.2 6.4 19.8 6.8L19.7 6.9C19.2 7.5 19.1 8.3 19.4 9C19.7 9.7 20.4 10.2 21.2 10.2H21.4C21.9 10.2 22.4 10.6 22.4 11.2V12.8C22.4 13.4 21.9 13.8 21.4 13.8H21.2C20.4 13.8 19.7 14.3 19.4 15Z"
-        stroke={color}
-        strokeWidth={focused ? 2.2 : 1.8}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+      <Circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
+        fill="none"
       />
+      <Circle
+        cx="12"
+        cy="12"
+        r="3.2"
+        stroke={stroke}
+        strokeWidth={focused ? 2 : 1.6}
+        fill="none"
+      />
+      <Circle
+        cx="12"
+        cy="12"
+        r="1.2"
+        fill={`url(#${id})`}
+        fillOpacity={focused ? 0.9 : 0.4}
+      />
+      {/* techy tick marks around the outer ring */}
+      <Rect x="11.3" y="1.5" width="1.4" height="2" rx="0.7" fill={`url(#${id})`} fillOpacity={0.85} />
+      <Rect x="11.3" y="20.5" width="1.4" height="2" rx="0.7" fill={`url(#${id})`} fillOpacity={0.85} />
+      <Rect x="1.5" y="11.3" width="2" height="1.4" rx="0.7" fill={`url(#${id})`} fillOpacity={0.85} />
+      <Rect x="20.5" y="11.3" width="2" height="1.4" rx="0.7" fill={`url(#${id})`} fillOpacity={0.85} />
     </Svg>
   );
 }

@@ -9,6 +9,7 @@ import HomeScreen from '../screens/HomeScreen';
 import ShopScreen from '../screens/ShopScreen';
 import CameraScreen from '../screens/CameraScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import { theme } from '../constants/theme';   // ← added
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -38,5 +39,5 @@ export default function MainTabs() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
+  root: { flex: 1, backgroundColor: theme.colors.background },   // ← added bg
 });
